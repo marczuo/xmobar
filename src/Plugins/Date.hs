@@ -24,7 +24,6 @@ import Plugins
 #if ! MIN_VERSION_time(1,5,0)
 import System.Locale
 #endif
-import Control.Monad (liftM)
 import Data.Time
 
 data Date = Date String String Int
@@ -36,4 +35,4 @@ instance Exec Date where
     rate  (Date _ _ r) = r
 
 date :: String -> IO String
-date format = liftM (formatTime defaultTimeLocale format) getZonedTime
+date format = fmap (formatTime defaultTimeLocale format) getZonedTime

@@ -19,7 +19,7 @@ import System.Console.GetOpt
 import Plugins.Monitors.Common
 import IWlib
 
-data WirelessOpts = WirelessOpts
+newtype WirelessOpts = WirelessOpts
   { qualityIconPattern :: Maybe IconPattern
   }
 

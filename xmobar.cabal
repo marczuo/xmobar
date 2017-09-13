@@ -1,5 +1,5 @@
 name:               xmobar
-version:            0.24.2
+version:            0.24.5
 homepage:           http://xmobar.org
 synopsis:           A Minimalistic Text Based Status Bar
 description: 	    Xmobar is a minimalistic text based status bar.
@@ -74,12 +74,20 @@ flag with_threaded
   description: Use threaded runtime.
   default: False
 
+flag with_rtsopts
+  description: Use -with-rtsopts=-V0 to reduce wakeups
+  default: True
+
 flag with_uvmeter
   description: UVMeter only useful to australians.
   default: False
 
+flag with_weather
+  description: Enable weather plugin
+  default: True
+
 flag with_conduit
-  description: Use http-conduits for getting weather data
+  description: Use http-conduits for getting weather data, only has an effect if with_weather is set.
   default: False
 
 executable xmobar
@@ -87,7 +95,7 @@ executable xmobar
     main-is:            Main.hs
     other-modules:
       Xmobar, Actions, Bitmap, Config, Parsers, Commands, Localize,
-      XUtil, XPMFile, StatFS, Runnable, ColorCache, Window, Signal,
+      XUtil, StatFS, Runnable, ColorCache, Window, Signal,
       Environment,
       Plugins, Plugins.BufferedPipeReader,
       Plugins.CommandReader, Plugins.Date, Plugins.EWMH,
@@ -101,9 +109,8 @@ executable xmobar
       Plugins.Monitors.MultiCpu, Plugins.Monitors.Net,
       Plugins.Monitors.Swap, Plugins.Monitors.Thermal,
       Plugins.Monitors.ThermalZone, Plugins.Monitors.Top,
-      Plugins.Monitors.Uptime, Plugins.Monitors.Weather,
-      Plugins.Monitors.Bright, Plugins.Monitors.CatInt,
-      Plugins.Monitors.UVMeter
+      Plugins.Monitors.Uptime,
+      Plugins.Monitors.Bright, Plugins.Monitors.CatInt
 
     ghc-options: -funbox-strict-fields -Wall -fno-warn-unused-do-bind
     extra-libraries: Xrandr Xrender
@@ -123,13 +130,7 @@ executable xmobar
       X11 >= 1.6.1,
       mtl >= 2.1 && < 2.3,
       parsec == 3.1.*,
-      HTTP >= 4000.2.4,
       stm >= 2.3 && < 2.5
-
-    if flag(with_conduit)
-       -- use http-conduit  instead of simple-http
-       build-depends: http-conduit, http-types
-       cpp-options: -DHTTP_CONDUIT
 
     if flag(with_threaded)
        -- -threaded is a workaround for 100% CPU busy loop
@@ -138,8 +139,8 @@ executable xmobar
        ghc-options: -threaded
        cpp-options: -DTHREADED_RUNTIME
 
-    if impl (ghc < 7)
-       cpp-options: -DGHC6
+    if flag(with_rtsopts)
+       ghc-options: -with-rtsopts=-V0
 
     if flag(with_xft) || flag(all_extensions)
        build-depends: utf8-string >= 0.3 && < 1.1, X11-xft >= 0.2 && < 0.4
@@ -161,7 +162,7 @@ executable xmobar
        cpp-options: -DIWLIB
 
     if flag(with_mpd) || flag(all_extensions)
-       build-depends: libmpd == 0.9.*
+       build-depends: libmpd >= 0.9.0.6
        other-modules: Plugins.Monitors.MPD
        cpp-options: -DLIBMPD
 
@@ -191,5 +192,16 @@ executable xmobar
        other-modules: XPMFile
        cpp-options: -DXPM
 
-    if flag(with_uvmeter)
+    if flag(with_weather) || flag(all_extensions)
+       build-depends: HTTP >= 4000.2.4
+       other-modules: Plugins.Monitors.Weather
+       cpp-options: -DWEATHER
+       if flag(with_conduit)
+          -- use http-conduit  instead of simple-http
+          build-depends: http-conduit, http-types
+          cpp-options: -DHTTP_CONDUIT
+
+    if flag(with_uvmeter) && flag(with_conduit)
+       other-modules: Plugins.Monitors.UVMeter
+       build-depends: http-conduit, http-types
        cpp-options: -DUVMETER

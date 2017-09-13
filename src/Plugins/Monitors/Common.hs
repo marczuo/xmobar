@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Plugins.Monitors.Common
--- Copyright   :  (c) 2010, 2011, 2013, 2016 Jose Antonio Ortega Ruiz
+-- Copyright   :  (c) 2010, 2011, 2013, 2016, 2017 Jose Antonio Ortega Ruiz
 --                (c) 2007-2010 Andrea Rossato
 -- License     :  BSD-style (see LICENSE)
 --
@@ -296,7 +296,7 @@ templateStringParser =
        ; return (s, com, ss)
        }
     where
-      nonPlaceHolder = liftM concat . many $
+      nonPlaceHolder = fmap concat . many $
                        many1 (noneOf "<") <|> colorSpec <|> iconSpec
 
 -- | Recognizes color specification and returns it unchanged
@@ -365,7 +365,7 @@ type IconPattern = Int -> String
 parseIconPattern :: String -> IconPattern
 parseIconPattern path =
     let spl = splitOnPercent path
-    in \i -> concat $ intersperse (show i) spl
+    in \i -> intercalate (show i) spl
   where splitOnPercent [] = [[]]
         splitOnPercent ('%':'%':xs) = [] : splitOnPercent xs
         splitOnPercent (x:xs) =
@@ -466,7 +466,7 @@ showPercentsWithColors fs =
      zipWithM (showWithColors . const) fstrs (map (*100) fs)
 
 showPercentWithColors :: Float -> Monitor String
-showPercentWithColors f = liftM head $ showPercentsWithColors [f]
+showPercentWithColors f = fmap head $ showPercentsWithColors [f]
 
 showPercentBar :: Float -> Float -> Monitor String
 showPercentBar v x = do
@@ -495,37 +495,22 @@ showVerticalBar v x = colorizeString v [convert $ 100 * x]
           | otherwise = chr t
           where t = 9600 + (round val `div` 12)
 
+logScaling :: Float -> Float -> Monitor Float
+logScaling f v = do
+  h <- fromIntegral `fmap` getConfigValue high
+  l <- fromIntegral `fmap` getConfigValue low
+  bw <- fromIntegral `fmap` getConfigValue barWidth
+  let [ll, hh] = sort [l, h]
+      scaled x | x == 0.0 = 0
+               | x <= ll = 1 / bw
+               | otherwise = f + logBase 2 (x / hh) / bw
+  return $ scaled v
+
 showLogBar :: Float -> Float -> Monitor String
-showLogBar f v =
-  let intConfig c = fromIntegral `fmap` getConfigValue c
-  in do
-    h <- intConfig high
-    l <- intConfig low
-    bw <- intConfig barWidth
-    let [ll, hh] = sort [l, h]
-        choose x | x == 0.0 = 0
-                 | x <= ll = 1 / bw
-                 | otherwise = f + logBase 2 (x / hh) / bw
-    showPercentBar v $ choose v
+showLogBar f v = logScaling f v >>= showPercentBar v
 
 showLogVBar :: Float -> Float -> Monitor String
-showLogVBar f v = do
-  h <- fromIntegral `fmap` getConfigValue high
-  l <- fromIntegral `fmap` getConfigValue low
-  bw <- fromIntegral `fmap` getConfigValue barWidth
-  let [ll, hh] = sort [l, h]
-      choose x | x == 0.0 = 0
-               | x <= ll = 1 / bw
-               | otherwise = f + logBase 2 (x / hh) / bw
-  showVerticalBar v $ choose v
+showLogVBar f v = logScaling f v >>= showVerticalBar v
 
 showLogIconPattern :: Maybe IconPattern -> Float -> Float -> Monitor String
-showLogIconPattern str f v = do
-  h <- fromIntegral `fmap` getConfigValue high
-  l <- fromIntegral `fmap` getConfigValue low
-  bw <- fromIntegral `fmap` getConfigValue barWidth
-  let [ll, hh] = sort [l, h]
-      choose x | x == 0.0 = 0
-               | x <= ll = 1 / bw
-               | otherwise = f + logBase 2 (x / hh) / bw
-  showIconPattern str $ choose v
+showLogIconPattern str f v = logScaling f v >>= showIconPattern str

@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Window
--- Copyright   :  (c) 2011-15 Jose A. Ortega Ruiz
+-- Copyright   :  (c) 2011-17 Jose A. Ortega Ruiz
 --             :  (c) 2012 Jochen Keil
 -- License     :  BSD-style (see LICENSE)
 --
@@ -178,7 +178,7 @@ drawBorder b lw d p gc c wi ht =  case b of
   FullBM m   -> let mp = fi m
                     pad = 2 * fi mp +  fi lw
                 in sf >> sla >>
-                     drawRectangle d p gc mp mp (wi - pad + 1) (ht - pad)
+                     drawRectangle d p gc mp mp (wi - pad) (ht - pad)
   where sf    = setForeground d gc c
         sla   = setLineAttributes d gc (fi lw) lineSolid capNotLast joinMiter
         boff  = borderOffset b lw
@@ -197,7 +197,7 @@ showWindow r c d w = do
 
 isMapped :: Display -> Window -> IO Bool
 isMapped d w = ism <$> getWindowAttributes d w
-    where ism (WindowAttributes { wa_map_state = wms }) = wms /= waIsUnmapped
+    where ism WindowAttributes { wa_map_state = wms } = wms /= waIsUnmapped
 
 borderOffset :: (Integral a) => Border -> Int -> a
 borderOffset b lw =

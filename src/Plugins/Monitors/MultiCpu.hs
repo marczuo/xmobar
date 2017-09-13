@@ -58,15 +58,15 @@ multiCpuConfig =
             [ k ++ n     | n <- "" : map show [0 :: Int ..]
                          , k <- variables]
 
-type CpuDataRef = IORef [[Float]]
+type CpuDataRef = IORef [[Int]]
 
-cpuData :: IO [[Float]]
+cpuData :: IO [[Int]]
 cpuData = parse `fmap` B.readFile "/proc/stat"
   where parse = map parseList . cpuLists
         cpuLists = takeWhile isCpu . map B.words . B.lines
         isCpu (w:_) = "cpu" `isPrefixOf` B.unpack w
         isCpu _ = False
-        parseList = map (parseFloat . B.unpack) . tail
+        parseList = map (parseInt . B.unpack) . tail
 
 parseCpuData :: CpuDataRef -> IO [[Float]]
 parseCpuData cref =
@@ -76,9 +76,9 @@ parseCpuData cref =
      let p0 = zipWith percent bs as
      return p0
 
-percent :: [Float] -> [Float] -> [Float]
+percent :: [Int] -> [Int] -> [Float]
 percent b a = if tot > 0 then map (/ tot) $ take 4 dif else [0, 0, 0, 0]
-  where dif = zipWith (-) b a
+  where dif = map fromIntegral $ zipWith (-) b a
         tot = sum dif
 
 formatMultiCpus :: MultiCpuOpts -> [[Float]] -> Monitor [String]
@@ -96,10 +96,10 @@ formatCpu opts i xs
                       return (b:h:d:ps)
   where tryString
           | i == 0 = loadIconPattern opts
-          | i <= length (loadIconPatterns opts) = Just $ (loadIconPatterns opts) !! (i - 1)
+          | i <= length (loadIconPatterns opts) = Just $ loadIconPatterns opts !! (i - 1)
           | otherwise = Nothing
 
-splitEvery :: (Eq a) => Int -> [a] -> [[a]]
+splitEvery :: Int -> [a] -> [[a]]
 splitEvery n = unfoldr (\x -> if null x then Nothing else Just $ splitAt n x)
 
 groupData :: [String] -> [[String]]

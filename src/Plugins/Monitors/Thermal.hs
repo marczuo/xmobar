@@ -14,7 +14,6 @@
 
 module Plugins.Monitors.Thermal where
 
-import Control.Monad (liftM)
 import qualified Data.ByteString.Lazy.Char8 as B
 import Plugins.Monitors.Common
 import System.Posix.Files (fileExist)
@@ -34,8 +33,7 @@ runThermal args = do
         file = "/proc/acpi/thermal_zone/" ++ zone ++ "/temperature"
     exists <- io $ fileExist file
     if exists
-        then do number <- io $ liftM ((read :: String -> Int) . stringParser (1, 0)) (B.readFile file)
+        then do number <- io $ fmap ((read :: String -> Int) . stringParser (1, 0)) (B.readFile file)
                 thermal <- showWithColors show number
                 parseTemplate [  thermal ]
         else return $ "Thermal (" ++ zone ++ "): N/A"
-

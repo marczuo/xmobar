@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Plugins.Monitors.Cpu
--- Copyright   :  (c) 2011 Jose Antonio Ortega Ruiz
+-- Copyright   :  (c) 2011, 2017 Jose Antonio Ortega Ruiz
 --                (c) 2007-2010 Andrea Rossato
 -- License     :  BSD-style (see LICENSE)
 --
@@ -20,7 +20,7 @@ import qualified Data.ByteString.Lazy.Char8 as B
 import Data.IORef (IORef, newIORef, readIORef, writeIORef)
 import System.Console.GetOpt
 
-data CpuOpts = CpuOpts
+newtype CpuOpts = CpuOpts
   { loadIconPattern :: Maybe IconPattern
   }
 

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 -- |
 -- Module: MinXft
--- Copyright: (c) 2012, 2014, 2015 Jose Antonio Ortega Ruiz
+-- Copyright: (c) 2012, 2014, 2015, 2017 Jose Antonio Ortega Ruiz
 --            (c) Clemens Fruhwirth <clemens@endorphin.org> 2007
 -- License: BSD3-style (see LICENSE)
 --
@@ -179,7 +179,7 @@ drawXftString' d c fs x y string = do
     mapM_ (\(f, s, _, xo, yo) -> drawXftString d c f (x+xo) (y+yo) s) chunks
 
 -- Split string and determine fonts/offsets for individual parts
-getChunks :: Display -> [AXftFont] -> [Char] ->
+getChunks :: Display -> [AXftFont] -> String ->
              IO [(AXftFont, String, XGlyphInfo, Integer, Integer)]
 getChunks disp fts str = do
     chunks <- getFonts disp fts str
@@ -253,7 +253,7 @@ instance Storable XRenderPictureAttributes where
     sizeOf _ = #{size XRenderPictureAttributes}
     alignment _ = alignment (undefined :: CInt)
     peek _ = return XRenderPictureAttributes
-    poke p XRenderPictureAttributes = do
+    poke p XRenderPictureAttributes =
         memset p 0 #{size XRenderPictureAttributes}
 
 -- | Convenience function, gives us an XRender handle to a traditional

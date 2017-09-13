@@ -1,5 +1,42 @@
 % xmobar - Release notes
 
+## Version 0.24.5 (May, 2017)
+
+_Bug fixes_
+
+  - Fix for vertical bars ([issue #303])
+
+[issue #303]: https://github.com/jaor/xmobar/issues/303
+
+## Version 0.24.4 (April, 2017)
+
+_Infrastructure_
+
+  - Whe have now an active [Travis CI setup].
+
+[Travis CI setup]: https://travis-ci.org/jaor/xmobar
+
+_Bug fixes_
+
+  - Reduce wakeups rate via rtsopts V0 (with new flag with_rtsopts to
+    disable it) (see [issue #89]).
+  - Fix Net monitor for lage uptimes and bytecounts (Tomas Janoušek).
+  - Fix MultiCpu monitor for large uptimes (Zev Weiss).
+  - Fix compilation when XMP is disabled (Sergi Trofimovich).
+  - Better fatal error messages (Michael Bishop).
+  - More paths to read from in CoreTemp (see [issue #291]).
+
+[issue #291]: https://github.com/jaor/xmobar/issues/291
+
+## Version 0.24.3 (Sep 5, 2016)
+
+_Bug fixes_
+
+  - Battery monitor: fixes for cases where status is not consistently
+    reported by the kernel (see [issue #271]).
+
+[issue #271]: https://github.com/jaor/xmobar/issues/271
+
 ## Version 0.24.2 (Aug 8, 2016)
 
 _Bug fixes_

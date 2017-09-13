@@ -18,11 +18,14 @@ module Plugins.Monitors.UVMeter where
 import Plugins.Monitors.Common
 
 import qualified Control.Exception as CE
-import Control.Applicative hiding ((<|>),many)
-import Network.HTTP
+import Network.HTTP.Conduit
+       (parseRequest, newManager, tlsManagerSettings, httpLbs,
+        responseBody)
+import Data.ByteString.Lazy.Char8 as B
 import Text.Read (readMaybe)
 import Text.Parsec
 import Text.Parsec.String
+import Control.Monad (void)
 
 
 uvConfig :: IO MConfig
@@ -31,18 +34,22 @@ uvConfig = mkMConfig
        ["station"                               -- available replacements
        ]
 
-data UvInfo = UV { index :: String }
+newtype UvInfo = UV { index :: String }
     deriving (Show)
 
 uvURL :: String
-uvURL = "http://www.arpansa.gov.au/uvindex/realtime/xml/uvvalues.xml"
+uvURL = "https://uvdata.arpansa.gov.au/xml/uvvalues.xml"
 
 getData :: IO String
-getData = do
-    let request = getRequest uvURL
-    CE.catch (simpleHTTP request >>= getResponseBody) errHandler
-    where errHandler :: CE.IOException -> IO String
-          errHandler _ = return "<Could not retrieve data>"
+getData =
+  CE.catch (do request <- parseRequest uvURL
+               manager <- newManager tlsManagerSettings
+               res <- httpLbs request manager
+               return $ B.unpack $ responseBody res)
+           errHandler
+  where errHandler
+          :: CE.SomeException -> IO String
+        errHandler _ = return "<Could not retrieve data>"
 
 textToXMLDocument :: String -> Either ParseError [XML]
 textToXMLDocument = parse document ""
@@ -86,7 +93,7 @@ runUVMeter (s:_) = do
 type AttrName  = String
 type AttrValue = String
 
-data Attribute = Attribute (AttrName, AttrValue)
+newtype Attribute = Attribute (AttrName, AttrValue)
     deriving (Show)
 
 data XML = Element String [Attribute] [XML]
@@ -123,7 +130,7 @@ tag  = do
 
 xmlDecl :: Parser XML
 xmlDecl = do
-    string "<?xml"
+    void $ manyTill anyToken (string "<?xml") -- ignore the byte order mark
     decl <- many (noneOf "?>")
     string "?>"
     return (Decl decl)

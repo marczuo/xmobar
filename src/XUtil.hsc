@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  XUtil
--- Copyright   :  (C) 2011, 2012, 2013, 2014, 2015 Jose Antonio Ortega Ruiz
+-- Copyright   :  (C) 2011, 2012, 2013, 2014, 2015, 2017 Jose Antonio Ortega Ruiz
 --                (C) 2007 Andrea Rossato
 -- License     :  BSD3
 --
@@ -10,8 +10,6 @@
 -- Portability :  unportable
 --
 -----------------------------------------------------------------------------
-
-{-# LANGUAGE ForeignFunctionInterface, EmptyDataDecls #-}
 
 module XUtil
     ( XFont
@@ -130,8 +128,7 @@ initXftFont :: Display -> String -> IO [AXftFont]
 initXftFont d s = do
   setupLocale
   let fontNames = wordsBy (== ',') (drop 4 s)
-  fonts <- mapM openFont fontNames
-  return fonts
+  mapM openFont fontNames
   where
     openFont fontName = do
         f <- openAXftFont d (defaultScreenOfDisplay d) fontName
@@ -160,7 +157,7 @@ textExtents (Core fs) s = do
 textExtents (Utf8 fs) s = do
   let (_,rl)  = wcTextExtents fs s
       ascent  = fi $ - (rect_y rl)
-      descent = fi $ rect_height rl + (fi $ rect_y rl)
+      descent = fi $ rect_height rl + fi (rect_y rl)
   return (ascent, descent)
 #ifdef XFT
 textExtents (Xft xftfonts) _ = do
@@ -185,8 +182,8 @@ printString d p (Utf8 fs) gc fc bc x y s a =
       io $ wcDrawImageString d p fs gc x y s
 
 #ifdef XFT
-printString dpy drw fs@(Xft fonts) _ fc bc x y s al = do
-  withDrawingColors dpy drw fc bc $ \draw -> \fc' -> \bc' -> do
+printString dpy drw fs@(Xft fonts) _ fc bc x y s al =
+  withDrawingColors dpy drw fc bc $ \draw fc' bc' -> do
     when (al == 255) $ do
       (a,d)  <- textExtents fs s
       gi <- xftTxtExtents' dpy fonts s

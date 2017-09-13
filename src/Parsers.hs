@@ -25,7 +25,7 @@ import Runnable
 import Commands
 import Actions
 
-import Control.Monad (guard, mzero, liftM)
+import Control.Monad (guard, mzero)
 import qualified Data.Map as Map
 import Text.ParserCombinators.Parsec
 import Text.ParserCombinators.Parsec.Perm
@@ -276,7 +276,7 @@ parseConfig = runParser parseConf fields "Config" . stripComments
                 spaces
                 char lead
                 s <- manyTill anyChar (rowCont <|> unescQuote)
-                (char '"' >> return s) <|> liftM (s ++) (scan '\\')
+                (char '"' >> return s) <|> fmap (s ++) (scan '\\')
             rowCont    = try $ char '\\' >> string "\n"
             unescQuote = lookAhead (noneOf "\\") >> lookAhead (string "\"")
 

@@ -27,6 +27,7 @@ import Signal
 data BufferedPipeReader = BufferedPipeReader String [(Int, Bool, String)]
     deriving (Read, Show)
 
+{-# NOINLINE signal #-}
 signal :: MVar SignalType
 signal = unsafePerformIO newEmptyMVar
 

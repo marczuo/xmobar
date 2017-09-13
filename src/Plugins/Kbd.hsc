@@ -380,7 +380,7 @@ instance Exec Kbd where
         dpy <- openDisplay ""
 
         -- initial set of layout
-        cb =<< (getKbdLay dpy opts)
+        cb =<< getKbdLay dpy opts
 
         -- enable listing for
         -- group changes
@@ -391,7 +391,7 @@ instance Exec Kbd where
         allocaXEvent $ \e -> forever $ do
             nextEvent' dpy e
             _ <- getEvent e
-            cb =<< (getKbdLay dpy opts)
+            cb =<< getKbdLay dpy opts
 
         closeDisplay dpy
         return ()

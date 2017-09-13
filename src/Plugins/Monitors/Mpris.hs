@@ -78,6 +78,7 @@ mprisConfig = mkMConfig "<artist> - <title>"
                 , "title", "tracknumber" , "composer", "genre"
                 ]
 
+{-# NOINLINE dbusClient #-}
 dbusClient :: DC.Client
 dbusClient = unsafePerformIO DC.connectSession
 
@@ -106,7 +107,7 @@ unpackMetadata xs =
                  TypeVariant -> unpack $ fromVar v
                  TypeStructure _ ->
                    let x = structureItems (fromVar v) in
-                     if x == [] then [] else unpack (head x)
+                     if null x then [] else unpack (head x)
                  _ -> []
 
 getMetadata :: (MprisVersion a) => a -> DC.Client -> String -> IO [(String, Variant)]
@@ -141,5 +142,5 @@ makeList version md = map getStr (fieldsList version) where
                                            _ -> (show::Int64 -> String) num
                             TypeArray TypeString ->
                               let x = arrayItems (fromVar v) in
-                                if x == [] then "" else fromVar (head x)
+                                if null x then "" else fromVar (head x)
                             _ -> ""

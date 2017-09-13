@@ -39,7 +39,8 @@ runCoreTemp _ = do
    failureMessage <- getConfigValue naString
    let path = ["/sys/bus/platform/devices/coretemp.", "/temp", "_input"]
        path' = ["/sys/bus/platform/devices/coretemp.", "/hwmon/hwmon", "/temp", "_input"]
+       path'' = ["/sys/class/hwmon/hwmon", "/device/hwmon/hwmon", "/temp", "_input"]
        lbl  = Just ("_label", read . dropWhile (not . isDigit))
        divisor = 1e3 :: Double
        show' = showDigits (max 0 dn)
-   checkedDataRetrieval failureMessage [path, path'] lbl (/divisor) show'
+   checkedDataRetrieval failureMessage [path, path', path''] lbl (/divisor) show'

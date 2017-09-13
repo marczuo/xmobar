@@ -150,13 +150,13 @@ getAtom s = do
 
 windowProperty32 :: String -> Window -> M (Maybe [CLong])
 windowProperty32 s w = do
-    (C {display}) <- ask
+    C {display} <- ask
     a <- getAtom s
     liftIO $ getWindowProperty32 display a w
 
 windowProperty8 :: String -> Window -> M (Maybe [CChar])
 windowProperty8 s w = do
-    (C {display}) <- ask
+    C {display} <- ask
     a <- getAtom s
     liftIO $ getWindowProperty8 display a w
 
@@ -190,21 +190,21 @@ type Updater = Window -> M ()
 
 updateCurrentDesktop, updateDesktopNames, updateActiveWindow :: Updater
 updateCurrentDesktop _ = do
-    (C {root}) <- ask
+    C {root} <- ask
     mwp <- windowProperty32 "_NET_CURRENT_DESKTOP" root
     case mwp of
         Just [x] -> modify (\s -> s { currentDesktop = x })
         _        -> return ()
 
 updateActiveWindow _ = do
-    (C {root}) <- ask
+    C {root} <- ask
     mwp <- windowProperty32 "_NET_ACTIVE_WINDOW" root
     case mwp of
         Just [x] -> modify (\s -> s { activeWindow = fromIntegral x })
         _        -> return ()
 
 updateDesktopNames _ = do
-    (C {root}) <- ask
+    C {root} <- ask
     mwp <- windowProperty8 "_NET_DESKTOP_NAMES" root
     case mwp of
         Just xs -> modify (\s -> s { desktopNames = parse xs })
@@ -219,7 +219,7 @@ updateDesktopNames _ = do
     parse = split . decodeCChar
 
 updateClientList _ = do
-    (C {root}) <- ask
+    C {root} <- ask
     mwp <- windowProperty32 "_NET_CLIENT_LIST" root
     case mwp of
         Just xs -> do

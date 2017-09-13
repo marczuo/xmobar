@@ -1,4 +1,4 @@
-% xmobar - a minimalistic status bar
+[![Build Status](https://travis-ci.org/jaor/xmobar.svg?branch=master)](https://travis-ci.org/jaor/xmobar)
 
 # About
 
@@ -10,7 +10,7 @@ xmobar was inspired by the [Ion3] status bar, and supports similar
 features, like dynamic color management, icons, output templates, and
 extensibility through plugins.
 
-This page documents xmobar 0.24.2 (see [release notes]).
+This page documents xmobar 0.24.5 (see [release notes]).
 
 [This screenshot] shows xmobar running under [sawfish], with
 antialiased fonts. And [this one] is my desktop with [xmonad] and two
@@ -141,7 +141,7 @@ Otherwise, you'll need to install them yourself.
 :    Support for wireless cards. Enables the Wireless plugin. No Haskell
      library is required, but you will need the [iwlib] C library and
      headers in your system (e.g., install `libiw-dev` in Debian-based
-     systems).
+     systems or `wireless_tools` on Arch Linux).
 
 `with_alsa`
 :    Support for ALSA sound cards. Enables the Volume plugin. Requires the
@@ -158,11 +158,16 @@ Otherwise, you'll need to install them yourself.
      Requires the [libXpm] C library.
 
 `with_uvmeter`
-:    Enables UVMeter plugin. The plugin shows UV data for Australia.
+:    Enables UVMeter plugin. The plugin shows UV data for Australia. Requires
+     `with_conduit` to connect to HTTPS URLs.
+
+`with_weather`
+:    Support to display weather information. Enables Weather plugin.
 
 `with_conduit`
 :    Use http-conduit for getting weather data enabling support for http proxies.
      Requires [http-conduit] and [http-types].
+     Note that this flag has only an effect if `with_weather` is also set.
 
 `all_extensions`
 :    Enables all the extensions above.
@@ -751,7 +756,7 @@ something like:
         `visibility`, `skyCondition`, `tempC`, `tempF`,
 	    `dewPointC`, `dewPointF`, `rh`, `pressure`
 - Default template: `<station>: <tempC>C, rh <rh>% (<hour>)`
-- Retrieves weather information from http://weather.noaa.gov.
+- Retrieves weather information from http://tgftp.nws.noaa.gov.
 
 ### `Network Interface Args RefreshRate`
 
@@ -1115,7 +1120,9 @@ more than one battery.
 - Aliases to `mpris1`
 - Requires [dbus] and [text] packages.
   To activate, pass `--flags="with_mpris"` during compilation.
-- PlayerName: player supporting MPRIS v1 protocol, in lowercase.
+- PlayerName: player supporting MPRIS v1 protocol.  Some players need
+  this to be an all lowercase name (e.g. "spotify"), but some others
+  don't.
 - Args: default monitor arguments.
 - Variables that can be used with the `-t`/`--template` argument:
             `album`, `artist`, `arturl`, `length`, `title`, `tracknumber`
@@ -1129,7 +1136,9 @@ more than one battery.
 - Aliases to `mpris2`
 - Requires [dbus] and [text] packages.
   To activate, pass `--flags="with_mpris"` during compilation.
-- PlayerName: player supporting MPRIS v2 protocol, in lowercase.
+- PlayerName: player supporting MPRIS v2 protocol.  Some players need
+  this to be an all lowercase name (e.g. "spotify"), but some others
+  don't.
 - Args: default monitor arguments.
 - Variables that can be used with the `-t`/`--template` argument:
             `album`, `artist`, `arturl`, `length`, `title`,
@@ -1550,7 +1559,7 @@ with the help of the greater xmobar and Haskell communities.
 In particular, xmobar [incorporates patches] by Axel Angel, Dragos
 Boca, Ben Boeckel, Duncan Burke, Roman Cheplyaka, Patrick Chilton,
 Antoine Eiche, Nathaniel Wesley Filardo, John Goerzen, Reto Hablützel,
-Juraj Hercek, Tomas Janousek, Spencer Janssen, Roman Joost, Jochen
+Juraj Hercek, Tomáš Janoušek, Spencer Janssen, Roman Joost, Jochen
 Keil, Lennart Kolmodin, Krzysztof Kosciuszkiewicz, Dmitry Kurochkin,
 Todd Lunter, Robert J. Macomber, Dmitry Malikov, David McLean, Marcin
 Mikołajczyk, Dino Morelli, Tony Morris, Eric Mrak, Thiago Negri,
@@ -1559,8 +1568,8 @@ Polakov, Petr Rockai, Andrew Sackville-West, Markus Scherer, Alexander
 Shabalin, Valentin Shirokov, Peter Simons, Alexander Solovyov, Will
 Song, John Soros, Travis Staton, Artem Tarasov, Samuli Thomasson,
 Edward Tjörnhammar, Sergei Trofimovich, Thomas Tuegel, Jan Vornberger,
-Anton Vorontsov, Daniel Wagner, Phil Xiaojun Hu, Edward Z. Yang and
-Norbert Zeh.
+Anton Vorontsov, Daniel Wagner, Zev Weiss, Phil Xiaojun Hu, Edward
+Z. Yang and Norbert Zeh.
 
 [jao]: http://jao.io
 [incorporates patches]: http://www.ohloh.net/p/xmobar/contributors
@@ -1602,7 +1611,7 @@ giving me the chance to contribute.
 This software is released under a BSD-style license. See [LICENSE] for
 more details.
 
-Copyright &copy; 2010-2016 Jose Antonio Ortega Ruiz
+Copyright &copy; 2010-2017 Jose Antonio Ortega Ruiz
 
 Copyright &copy; 2007-2010 Andrea Rossato
 

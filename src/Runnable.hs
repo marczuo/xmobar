@@ -46,7 +46,7 @@ class ReadAsAnyOf ts ex where
 instance ReadAsAnyOf () ex where
     readAsAnyOf ~() = mzero
 
-instance (Show t, Read t, Exec t, ReadAsAnyOf ts Runnable) => ReadAsAnyOf (t,ts) Runnable where
+instance (Read t, Exec t, ReadAsAnyOf ts Runnable) => ReadAsAnyOf (t,ts) Runnable where
     readAsAnyOf ~(t,ts) = r t `mplus` readAsAnyOf ts
               where r ty = do { m <- readPrec; return (Run (m `asTypeOf` ty)) }
 

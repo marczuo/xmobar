@@ -11,7 +11,7 @@
 -- A function to expand environment variables in strings
 --
 -----------------------------------------------------------------------------
-module Environment where
+module Environment(expandEnv) where
 
 import Control.Applicative  ((<$>))
 import Data.Maybe           (fromMaybe)

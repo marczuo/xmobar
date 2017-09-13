@@ -1,9 +1,16 @@
-index = ../readme.md
+index.src = ../readme.md
+index = readme.md
 releases = ../news.md
 css = xmobar.css
 images = xmobar-sawfish.png xmobar-xmonad.png
 remote = community.haskell.org:/srv/projects/xmobar/
 htmls = index.html releases.html
+title = % xmobar - a minimalistic status bar
+
+default: index.html
+
+$(index): $(index.src)
+	@sed -E "s/^\\[!\\[Build .+/$(title)/1" $(index.src) > $(index)
 
 index.html: releases.html $(index) $(css)
 	pandoc -f markdown -t html -c $(css) --toc -N -s \
@@ -22,4 +29,4 @@ upload-pages: $(htmls)
 upload: upload-images upload-pages
 
 clean:
-	rm -f $(htmls)
+	rm -f $(htmls) $(index)

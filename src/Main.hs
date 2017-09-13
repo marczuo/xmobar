@@ -37,7 +37,7 @@ import System.Exit
 import System.Environment
 import System.FilePath ((</>))
 import System.Posix.Files
-import Control.Monad (unless, liftM)
+import Control.Monad (unless)
 import Text.Read (readMaybe)
 
 import Signal (setupSignalHandler)
@@ -96,13 +96,13 @@ xdgConfigDir :: IO String
 xdgConfigDir = do env <- getEnvironment
                   case lookup "XDG_CONFIG_HOME" env of
                        Just val -> return val
-                       Nothing  -> liftM (</> ".config") getHomeDirectory
+                       Nothing  -> fmap (</> ".config") getHomeDirectory
 
 xmobarConfigDir :: IO FilePath
-xmobarConfigDir = liftM (</> "xmobar") xdgConfigDir
+xmobarConfigDir = fmap (</> "xmobar") xdgConfigDir
 
 getXdgConfigFile :: IO FilePath
-getXdgConfigFile = liftM (</> "xmobarrc") xmobarConfigDir
+getXdgConfigFile = fmap (</> "xmobarrc") xmobarConfigDir
 
 -- | Read default configuration file or load the default config
 readDefaultConfig :: IO (Config,[String])
@@ -186,7 +186,7 @@ usage = usageInfo header options ++ footer
 info :: String
 info = "xmobar " ++ showVersion version
         ++ "\n (C) 2007 - 2010 Andrea Rossato "
-        ++ "\n (C) 2010 - 2014 Jose A Ortega Ruiz\n "
+        ++ "\n (C) 2010 - 2017 Jose A Ortega Ruiz\n "
         ++ mail ++ "\n" ++ license
 
 mail :: String
@@ -231,7 +231,7 @@ doOpts conf (o:oo) =
                         "specified with the -" ++ c:" option\n")
         readStr str = [x | (x,t) <- reads str, ("","") <- lex t]
         doOpts' opts = doOpts opts oo
-        readPosition string = 
+        readPosition string =
             case readMaybe string of
                 Just x  -> doOpts' (conf { position = x })
                 Nothing -> do
